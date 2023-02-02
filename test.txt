@@ -1,0 +1,2 @@
+{"commonBurst":null,"uniqBurst":null,"danasBurst":null,"score":17}
+{"commonBurst":null,"uniqBurst":null,"danasBurst":null,"score":28}

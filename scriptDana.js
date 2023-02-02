@@ -12,6 +12,7 @@ function draw() {
 
         if (balloon.y <= 25 && balloon.colour != 'black' && balloon.colour != 'purple') {
             noLoop()
+            clearInterval(interval);
             Game.balloons.length = 0
             background('violet')
             let score = Game.score
@@ -48,6 +49,9 @@ function draw() {
 function mousePressed() {
     if (!isLooping()) {
         loop()
+        interval = setInterval(() =>{
+            Game.sendStatics();
+        }, 5000);
         Game.score = 0
     }
     Game.checkIfBalloonBurst()
@@ -56,6 +60,9 @@ function mousePressed() {
 class Game {
     static balloons = []
     static score = 0
+    static uniqBurst = 0
+    static angryBurst = 0
+    static danasBurst = 0
 
     static addCommonBalloon() {
         let balloon = new CommonBalloon('blue', 50)
@@ -85,7 +92,30 @@ class Game {
             }
         });
     }
+
+    static sendStatics() {
+        let statistics = {
+            commonBurst: this.commonCount,
+            uniqBurst: this.uniqCount,
+            angryBurst: this.angryCount,
+            danasBurst: this.danasCount,
+            score: this.score,
+        };
+
+        fetch('/statistic', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(statistics)
+        });
+    }
 }
+
+let interval = setInterval(() =>{
+    Game.sendStatics();
+}, 5000);
+
 
 
 class CommonBalloon {
@@ -116,7 +146,8 @@ class CommonBalloon {
 
     burst(index) {
         Game.balloons.splice(index, 1)
-        Game.score += 1
+        Game.score += 1;
+        Game.commonCount += 1;
     }
 }
 
@@ -126,7 +157,8 @@ class UniqBalloon extends CommonBalloon {
     }
     burst(index) {
         Game.balloons.splice(index, 1)
-        Game.score += 10
+        Game.score += 10;
+        Game.uniqCount += 1;
     }
 }
 
@@ -138,6 +170,8 @@ class AngryBalloon extends CommonBalloon{
     burst(index) {
         Game.balloons.splice(index, 1)
         Game.score -= 10
+        Game.angryCount += 1;
+
     }
 } 
 
@@ -152,5 +186,6 @@ class DanasBalloon extends CommonBalloon{
     burst(index) {
         Game.balloons.splice(index, 1)
         Game.score =  getRandomInt(-10, 20);
+        Game.danasCount += 1;
     }
 } 
